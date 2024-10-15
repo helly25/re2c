@@ -7,6 +7,7 @@ genrule(
         "//bazel:re2c_config.h",
     ],
     outs = ["config.h"],
+    visibility = ["//bazel:__pkg__"],
     cmd = """
         cat $(location //:CMakeLists.txt) |\\
             sed -rne 's/project\\(re2c VERSION ([^ ]+).*/#define PACKAGE_VERSION "\\1-bootstrap"/p' >> "$@"
@@ -27,10 +28,17 @@ cc_library(
     hdrs = glob([
         "bootstrap/src/**/*.h",
         "src/**/*.h",
-    ]),
+    ], exclude = [
+        "src/test/**",
+    ]) + [
+        "src/test/range/test.h"
+    ],
     srcs = glob([
         "bootstrap/src/**/*.cc",
         "src/**/*.cc",
+    ], exclude = [
+        "src/main.cc",
+        "src/test/**",
     ]),
     deps = [
         "re2c_config_cc",  # Needed for 're2c_config_cc' data files
